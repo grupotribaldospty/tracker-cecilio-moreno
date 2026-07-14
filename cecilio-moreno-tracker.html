@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Property Tracker — Cecilio Moreno</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bay:#0f5c63; --bay-deep:#0a3f44; --sand:#f6f1e7; --sand-card:#fffdf8;
+    --ink:#1c2826; --muted:#6b746f; --line:#e3ddcf;
+    --green:#2f7d4f; --green-bg:#e3f1e6; --amber:#9a6a16; --amber-bg:#fbf0d7;
+    --red:#a33636; --red-bg:#f7e1de; --slate:#3a5566; --slate-bg:#e2ebf0;
+    --shadow:0 1px 2px rgba(18,40,38,.06),0 6px 24px rgba(18,40,38,.06);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--sand);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+  a{color:var(--bay);text-underline-offset:2px}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+  header{background:linear-gradient(135deg,#0d6770 0%,#0a4248 100%);color:#fdfbf5;padding:24px 0 30px}
+  .header-inner{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+  .header-left{flex:1;min-width:260px}
+  .eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;opacity:.8;font-weight:500}
+  h1{font-family:'Fraunces',serif;font-weight:500;font-size:clamp(24px,3.5vw,34px);line-height:1.05;margin:4px 0 0}
+  .stats{display:flex;gap:22px}
+  .stat{text-align:center}
+  .stat .n{font-family:'Fraunces',serif;font-size:24px;line-height:1}
+  .stat .l{font-size:10.5px;opacity:.78;letter-spacing:.03em;margin-top:2px;white-space:nowrap}
+  .note-box{background:#fbf4e4;border:1px solid #ecdcb5;border-radius:12px;padding:14px 16px;margin:18px auto 0;font-size:13px;color:#5a4a22;line-height:1.55}
+  .note-box b{color:var(--amber)}
+  .controls{background:var(--sand-card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:14px 16px;margin:16px auto 22px;display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+  .field{display:flex;flex-direction:column;gap:4px;flex:1 1 130px;min-width:120px}
+  .field label{font-size:10.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+  select,input[type=search]{font:inherit;font-size:13.5px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+  select:focus,input:focus{outline:2px solid var(--bay);outline-offset:1px}
+  .clear{font:inherit;font-size:13px;background:none;border:none;color:var(--bay);cursor:pointer;padding:8px;text-decoration:underline}
+  .sec-head{display:flex;align-items:baseline;gap:12px;margin:30px 0 16px}
+  .sec-head h2{font-family:'Fraunces',serif;font-weight:500;font-size:22px}
+  .sec-head .meta{font-size:13px;color:var(--muted)}
+  .rule{height:1px;background:var(--line);flex:1}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px}
+  .card{background:var(--sand-card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;transition:transform .15s ease,box-shadow .15s ease}
+  .card:hover{transform:translateY(-3px);box-shadow:0 8px 30px rgba(18,40,38,.12)}
+  .thumb{height:170px;background:#dfe6e2 center/cover no-repeat;position:relative}
+  .verdict-tag{position:absolute;top:10px;left:10px;font-size:11.5px;font-weight:700;letter-spacing:.02em;padding:5px 12px;border-radius:99px;color:#fff}
+  .v-great{background:var(--green)} .v-solid{background:#3f8a5f} .v-fair{background:var(--amber)}
+  .fav-btn{position:absolute;top:10px;right:10px;background:rgba(255,253,248,.95);border:none;border-radius:99px;min-width:34px;height:34px;padding:0 10px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:var(--shadow);color:#c2456b;display:flex;align-items:center;justify-content:center;gap:4px}
+  .fav-btn.on{background:#c2456b;color:#fff}
+  .source-tag{position:absolute;bottom:10px;right:10px;background:rgba(255,253,248,.92);border-radius:99px;padding:3px 10px;font-size:10.5px;font-weight:600;color:var(--muted)}
+  .card-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px;flex:1}
+  .card h3{font-family:'Fraunces',serif;font-weight:500;font-size:18px;line-height:1.2}
+  .area{font-size:13px;color:var(--muted)}
+  .price{font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:var(--bay-deep)}
+  .ppm{font-size:11.5px;color:var(--muted);margin-left:6px}
+  .facts{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;padding:8px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .facts b{font-weight:600}
+  .considerations{background:#fbf4e4;border:1px solid #ecdcb5;border-radius:9px;padding:9px 11px;font-size:12.5px;color:#5a4a22}
+  .considerations b{display:block;font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--amber);margin-bottom:4px}
+  .considerations ul{margin:0 0 0 16px}
+  .considerations li{margin:2px 0}
+  .maint{font-size:12px;color:var(--muted)}
+  .card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:11px;border-top:1px solid var(--line)}
+  .card-foot a{font-size:13px;font-weight:600;text-decoration:none}
+  .card-foot a:hover{text-decoration:underline}
+  .updated{font-size:11.5px;color:var(--muted)}
+  footer{text-align:center;color:var(--muted);font-size:12.5px;padding:40px 20px 50px;line-height:1.7}
+  .empty{background:var(--sand-card);border:1px dashed var(--line);border-radius:14px;padding:38px 24px;text-align:center;color:var(--muted)}
+  @media(max-width:640px){.controls{padding:12px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap header-inner">
+    <div class="header-left">
+      <div class="eyebrow">Ciudad de Panamá · Cliente: Cecilio Moreno · Asesor: Osvaldo Marchena</div>
+      <h1>Property Tracker</h1>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="note-box">
+    <b>Nota:</b> se buscaron apartamentos de 400-600 m² con 4+ habitaciones en San Francisco y Altos del Golf a $1,300/m², pero ese tamaño de apartamento no existe a ese precio en esas zonas específicas (el mercado real ahí ronda $1,700-3,500/m²). Ampliando a $1,400-1,500/m² y a zonas equivalentes (Punta Pacífica, Obarrio, La Cresta/Bella Vista, Marbella, Punta Paitilla), estas son las 5 mejores opciones reales y activas hoy.
+  </div>
+
+  <div class="controls">
+    <div class="field"><label>Área</label>
+      <select id="f-area"><option value="">Todas</option></select>
+    </div>
+    <div class="field"><label>Precio</label>
+      <select id="f-price">
+        <option value="">Cualquiera</option>
+        <option value="0-500000">Hasta $500k</option>
+        <option value="500000-650000">$500k–$650k</option>
+        <option value="650000-800000">$650k–$800k</option>
+      </select>
+    </div>
+    <div class="field"><label>Tamaño (m²)</label>
+      <select id="f-size"><option value="">Cualquiera</option><option value="400">400+</option><option value="500">500+</option></select>
+    </div>
+    <div class="field"><label>Parqueos</label>
+      <select id="f-parking"><option value="">Cualquiera</option><option value="2">2+</option><option value="3">3+</option></select>
+    </div>
+    <button class="clear" id="clear">Limpiar filtros</button>
+  </div>
+
+  <div class="sec-head"><h2>Propiedades</h2><span class="meta" id="count-meta"></span><div class="rule"></div></div>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="empty" hidden><b>Sin resultados</b>Prueba ajustando los filtros.</div>
+</div>
+
+<footer>
+  Datos tomados de listados públicos (Encuentra24) verificados el 14/07/2026 · Los precios y disponibilidad pueden cambiar — verifica siempre en el link original antes de contactar.<br>
+  ❤ los favoritos se comparten con todos los que abren este link.
+</footer>
+
+<script>
+const SUPABASE_URL = "https://saqtricsftsfwxrpkewx.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNhcXRyaWNzZnRzZnd4cnBrZXd4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwNDU0MTEsImV4cCI6MjA5OTYyMTQxMX0.q2qvhqrbS24qKiLNTj92eTtNYmhz_Y7gZXgjucAJkXU";
+
+// Prefijo único para este cliente para que sus favoritos no se mezclen
+// con los de otros trackers que comparten la misma tabla de Supabase.
+const CLIENT_PREFIX = "cecilio-";
+
+const PROPERTIES = [
+  {
+    id:CLIENT_PREFIX+"oasis-bay",
+    building:"PH Oasis on the Bay (Penthouse)",
+    area:"Punta Pacífica",
+    price:700700, beds:4, baths:4.5, parking:2, size_m2:539,
+    maintenance:null,
+    verdict:"Great Find",
+    considerations:["Precio rebajado de $1,185,800 a $700,700 — $1,300/m², el mejor precio/m² de las 5","Piso 59, frente al mar, pet friendly","Sin cuarto de servicio detallado — confirmar con el agente"],
+    thumbnail:"https://photos.encuentra24.com/t_or_fh_m/f_auto/v1/pa/29/10/62/23/29106223_b72b8b",
+    listingUrl:"https://www.encuentra24.com/panama-es/bienes-raices-venta-de-propiedades-apartamentos/ganga-penthouse-frente-al-mar-539-m2-punta-pacifica/29106223",
+    lat:null, lng:null,
+    lastVerified:"2026-07-14", source:"Encuentra24"
+  },
+  {
+    id:CLIENT_PREFIX+"vista-obarrio",
+    building:"PH Vista Obarrio (Penthouse Calle 50)",
+    area:"Obarrio",
+    price:595000, beds:4, baths:4.5, parking:3, size_m2:420,
+    maintenance:700,
+    verdict:"Great Find",
+    considerations:["Tamaño casi exacto al pedido (420 m²) y buen precio/m² ($1,417)","Penthouse dúplex con estudio, den familiar y cuarto de masajes","Obarrio queda a minutos de San Francisco, no es la zona exacta pedida"],
+    thumbnail:"https://photos.encuentra24.com/t_or_fh_m/f_auto/v1/pa/32/53/86/37/32538637_d2b9043d05351d755f5a54c24b6286da-608a862",
+    listingUrl:"https://www.encuentra24.com/panama-es/bienes-raices-venta-de-propiedades-apartamentos/venta-apartamento-calle-50-oportunidad-de-plusvalia-pjt/32538637",
+    lat:null, lng:null,
+    lastVerified:"2026-07-14", source:"Encuentra24"
+  },
+  {
+    id:CLIENT_PREFIX+"torre-imperial",
+    building:"Torre Imperial",
+    area:"La Cresta (Bella Vista)",
+    price:800000, beds:4, baths:4.5, parking:4, size_m2:678,
+    maintenance:1000,
+    verdict:"Solid Option",
+    considerations:["678 m² — un poco más grande de lo pedido (400-600 m²), pero $1,180/m² es el más bajo de las 5","Un apartamento por piso, edificio de 1998 (más antiguo, revisar estado)","4 estacionamientos y 2 cuartos de servicio"],
+    thumbnail:"https://photos.encuentra24.com/t_or_fh_m/f_auto/v1/pa/23/80/12/32/23801232_1566b4",
+    listingUrl:"https://www.encuentra24.com/panama-es/bienes-raices-venta-de-propiedades-apartamentos/torre-imperial-amplio-y-lujoso-apartamento/23801232",
+    lat:null, lng:null,
+    lastVerified:"2026-07-14", source:"Encuentra24"
+  },
+  {
+    id:CLIENT_PREFIX+"bahia-esmeralda",
+    building:"PH Bahía Esmeralda",
+    area:"Marbella",
+    price:750000, beds:4, baths:4.5, parking:4, size_m2:495,
+    maintenance:644,
+    verdict:"Solid Option",
+    considerations:["Tamaño en el rango pedido (495 m²), $1,515/m² — justo en el límite superior de presupuesto","Completamente remodelado, un apartamento por piso","4 estacionamientos y depósito"],
+    thumbnail:"https://photos.encuentra24.com/t_or_fh_m/f_auto/v1/pa/32/23/48/49/32234849_ea94bbc25b814059f9eb2c0b98e9c0db-9e44fc0",
+    listingUrl:"https://www.encuentra24.com/panama-es/bienes-raices-venta-de-propiedades-apartamentos/se-vende-apartamento-en-bahia-esmeralda-marbella/32234849",
+    lat:null, lng:null,
+    lastVerified:"2026-07-12", source:"Encuentra24"
+  },
+  {
+    id:CLIENT_PREFIX+"tarpeya",
+    building:"PH Tarpeya (negociable)",
+    area:"Punta Paitilla",
+    price:485000, beds:4, baths:4.5, parking:2, size_m2:390,
+    maintenance:400,
+    verdict:"Great Find",
+    considerations:["El más económico ($1,244/m²), aunque queda justo debajo del tamaño mínimo pedido (400 m²)","Precio marcado como negociable — vale la pena ofertar","2 cuartos de servicio incluidos"],
+    thumbnail:"https://photos.encuentra24.com/t_or_fh_m/f_auto/v1/pa/32/57/76/49/32577649_7e07ccfb8844b94c3a1f8c5ec8c823cf-583ccf9",
+    listingUrl:"https://www.encuentra24.com/panama-es/bienes-raices-venta-de-propiedades-apartamentos/se-vende-apartamento-en-ph-tarpeya-paitilla-negociable/32577649",
+    lat:null, lng:null,
+    lastVerified:"2026-07-10", source:"Encuentra24"
+  }
+];
+
+const LS_VOTER_KEY = "ptracker_voter_id";
+let voterId = null;
+try{
+  voterId = localStorage.getItem(LS_VOTER_KEY);
+  if(!voterId){ voterId = "v-"+Math.random().toString(36).slice(2,10); localStorage.setItem(LS_VOTER_KEY, voterId); }
+}catch(e){ voterId = "v-"+Math.random().toString(36).slice(2,10); }
+
+let voteCounts = {};
+let myVotes = {};
+
+async function sbFetch(path, opts={}){
+  return fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...opts,
+    headers:{
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal",
+      ...(opts.headers||{})
+    }
+  });
+}
+
+async function loadFavorites(){
+  if(!(SUPABASE_URL && SUPABASE_KEY)) return;
+  try{
+    const res = await sbFetch(`favorites?select=property_id,voter&property_id=like.${encodeURIComponent(CLIENT_PREFIX)}*`);
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const rows = await res.json();
+    voteCounts = {}; myVotes = {};
+    rows.forEach(r=>{
+      voteCounts[r.property_id] = (voteCounts[r.property_id]||0)+1;
+      if(r.voter === voterId) myVotes[r.property_id] = true;
+    });
+  }catch(e){ console.warn("No se pudieron cargar los favoritos compartidos:", e); }
+}
+
+async function toggleFav(id){
+  const wasFav = !!myVotes[id];
+  if(wasFav){
+    delete myVotes[id];
+    voteCounts[id] = Math.max(0, (voteCounts[id]||1) - 1);
+  } else {
+    myVotes[id] = true;
+    voteCounts[id] = (voteCounts[id]||0) + 1;
+  }
+  render();
+  try{
+    if(wasFav){
+      await sbFetch(`favorites?property_id=eq.${encodeURIComponent(id)}&voter=eq.${encodeURIComponent(voterId)}`, { method:"DELETE" });
+    } else {
+      await sbFetch("favorites", { method:"POST", body: JSON.stringify({ property_id:id, voter:voterId }) });
+    }
+  }catch(e){ console.warn("No se pudo guardar el favorito en la nube:", e); }
+}
+
+const verdictClass = { "Great Find":"v-great", "Solid Option":"v-solid", "Fair":"v-fair" };
+function fmtMoney(n){ return "$"+n.toLocaleString("en-US"); }
+
+function cardHtml(p){
+  const ppm = Math.round(p.price / p.size_m2);
+  const isFav = !!myVotes[p.id];
+  const count = voteCounts[p.id] || 0;
+  const mapLink = `https://www.google.com/maps/search/${encodeURIComponent(p.building+" "+p.area+" Panama")}`;
+  return `
+  <div class="card">
+    <div class="thumb" style="background-image:url('${p.thumbnail}')">
+      <span class="verdict-tag ${verdictClass[p.verdict]||''}">${p.verdict}</span>
+      <button class="fav-btn ${isFav?'on':''}" onclick="toggleFav('${p.id}')" title="Marcar como favorito">${isFav?'♥':'♡'}${count?` ${count}`:''}</button>
+      <span class="source-tag">${p.source}</span>
+    </div>
+    <div class="card-body">
+      <h3>${p.building}</h3>
+      <div class="area">${p.area} · <a href="${mapLink}" target="_blank" rel="noopener">ver mapa</a></div>
+      <div class="price">${fmtMoney(p.price)}<span class="ppm">$${ppm.toLocaleString("en-US")}/m²</span></div>
+      <div class="facts">
+        <span><b>${p.beds}</b> hab</span>
+        <span><b>${p.baths}</b> baños</span>
+        <span><b>${p.parking ?? 'Consultar'}</b> parqueos</span>
+        <span><b>${p.size_m2}</b> m²</span>
+      </div>
+      ${p.considerations && p.considerations.length ? `
+      <div class="considerations">
+        <b>A tener en cuenta</b>
+        <ul>${p.considerations.map(c=>`<li>${c}</li>`).join("")}</ul>
+      </div>` : ""}
+      ${p.maintenance ? `<div class="maint">Mantenimiento: $${p.maintenance}/mes</div>` : ""}
+      <div class="card-foot">
+        <a href="${p.listingUrl}" target="_blank" rel="noopener">Ver anuncio original ↗</a>
+        <span class="updated">verificado ${p.lastVerified}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function populateAreaFilter(){
+  const sel = document.getElementById("f-area");
+  const areas = [...new Set(PROPERTIES.map(p=>p.area))].sort();
+  areas.forEach(a=>{
+    const opt = document.createElement("option");
+    opt.value = a; opt.textContent = a;
+    sel.appendChild(opt);
+  });
+}
+
+function currentFilters(){
+  return {
+    area: document.getElementById("f-area").value,
+    price: document.getElementById("f-price").value,
+    size: document.getElementById("f-size").value,
+    parking: document.getElementById("f-parking").value
+  };
+}
+
+function render(){
+  const f = currentFilters();
+  let list = PROPERTIES.filter(p=>{
+    if(f.area && p.area!==f.area) return false;
+    if(f.price){
+      const [lo,hi] = f.price.split("-").map(Number);
+      if(p.price<lo || p.price>hi) return false;
+    }
+    if(f.size && p.size_m2 < Number(f.size)) return false;
+    if(f.parking && (p.parking||0) < Number(f.parking)) return false;
+    return true;
+  });
+  list.sort((a,b)=> (a.price/a.size_m2) - (b.price/b.size_m2));
+
+  const grid = document.getElementById("grid");
+  const empty = document.getElementById("empty");
+  grid.innerHTML = list.map(cardHtml).join("");
+  empty.hidden = list.length>0;
+  document.getElementById("count-meta").textContent = `${list.length} de ${PROPERTIES.length} propiedades`;
+
+  const favCount = Object.values(voteCounts).filter(c=>c>0).length;
+  document.getElementById("stats").innerHTML = `
+    <div class="stat"><div class="n">${PROPERTIES.length}</div><div class="l">PROPIEDADES</div></div>
+    <div class="stat"><div class="n">${favCount}</div><div class="l">❤ CON FAVORITOS</div></div>
+  `;
+}
+
+document.querySelectorAll("#f-area,#f-price,#f-size,#f-parking").forEach(el=>el.addEventListener("change", render));
+document.getElementById("clear").addEventListener("click", ()=>{
+  document.getElementById("f-area").value="";
+  document.getElementById("f-price").value="";
+  document.getElementById("f-size").value="";
+  document.getElementById("f-parking").value="";
+  render();
+});
+
+(async function init(){
+  populateAreaFilter();
+  await loadFavorites();
+  render();
+})();
+</script>
+</body>
+</html>
